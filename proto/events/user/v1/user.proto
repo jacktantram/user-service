@@ -1,0 +1,27 @@
+
+syntax = "proto3";
+package events.user.v1;
+option go_package = "github.com/jacktantram/user-service/build/go/events/user/v1";
+
+import "shared/user/v1/user.proto";
+
+
+// UserCreatedEvent event fired when user is created.
+message UserCreatedEvent{
+    // The user resource.
+    shared.user.v1.User user = 1;
+}
+
+// UserUpdatedEvent event fired when user is updated.
+message UserUpdatedEvent{
+    // The user resource.
+    shared.user.v1.User user = 1;
+    // Fields that triggered an update on the user.
+    repeated shared.user.v1.UpdateUserField update_fields = 2;
+}
+
+// UserDeletedEvent event fired when user is deleted.
+message UserDeletedEvent{
+    // The user resource.
+    shared.user.v1.User user = 1;
+}

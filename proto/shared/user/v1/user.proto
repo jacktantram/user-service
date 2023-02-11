@@ -1,0 +1,36 @@
+syntax = "proto3";
+package shared.user.v1;
+option go_package = "github.com/jacktantram/user-service/build/go/shared/user/v1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// Defines a user entity.
+message User{
+  // The unique identifier of a user.
+  string id = 1;
+  // The first name of the user.
+  string first_name  = 2;
+  // The last name of the user.
+  string last_name  = 3;
+  // The last name of the user.
+  string nickname  = 4;
+  // The password of a user.
+  string password  = 5;
+  // The email of a user.
+  string email = 6;
+  // The country of a user. (Could create an enum of countries to be more precise)
+  string country = 7;
+  // The date the user was created.
+  google.protobuf.Timestamp created_at = 8;
+  // The date the user was updated.
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// Enumerations of permitted fields to update for users.
+enum UpdateUserField{
+  // The update field is unspecified. This should not happen.
+  UPDATE_USER_FIELD_UNSPECIFIED = 0;
+  // The update field specifying first name to be updated.
+  UPDATE_USER_FIELD_FIRST_NAME = 1;
+}

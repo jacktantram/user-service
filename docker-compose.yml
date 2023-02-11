@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  postgres:
+    image: postgres:10.5
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+  user_service:
+    build:
+      context: .
+      dockerfile: services/user-service/Dockerfile
+    env_file:
+      - 'dev.env'
+    ports:
+      - "5001:5001"
+    depends_on:
+      - postgres

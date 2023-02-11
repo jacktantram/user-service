@@ -1,0 +1,94 @@
+
+syntax = "proto3";
+package rpc.user.v1;
+option go_package = "github.com/jacktantram/user-service/build/go/rpc/user/v1";
+
+import "shared/user/v1/user.proto";
+
+
+// Service responsible for maintaining users.
+service UserService{
+    // Gets a user.
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+    // Lists a set of users.
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+    // Creates a user.
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+    // Updates a user.
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+    // Deletes a user.
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+// GetUserRequest request object for fetching users.
+message GetUserRequest{
+    // id of the user.
+    string id = 1;
+}
+
+// GetUserResponse object returned fetching users.
+message GetUserResponse{
+    // The user resource.
+    shared.user.v1.User user = 1;
+}
+
+// ListUserRequest object for listing users.
+message ListUsersRequest{
+    // filters that can be applied when listing users.
+    SelectUserFilters filters = 1;
+    // Offset that can be set for paginating through employees.
+    uint64 offset = 2;
+    // Limit that can be set for limiting employees returned.
+    uint64 limit = 3;
+}
+
+ // Filters that can be sent to filter users.
+message SelectUserFilters{
+    // List of countries that can be filtered by (2 Digit Country Code.)
+    repeated string countries = 1;
+}
+
+
+// Response returned listing users.
+message ListUsersResponse{
+    // List of users resource.
+    repeated shared.user.v1.User users = 1;
+}
+
+
+// Request to create a user.
+message CreateUserRequest{
+    shared.user.v1.User User = 1;
+}
+
+// Response creating a user.
+message CreateUserResponse{
+    // Created user.
+    shared.user.v1.User User = 1;
+}
+
+
+// Request to updating a user.
+message UpdateUserRequest{
+    // The user to update.
+    shared.user.v1.User User = 1;
+    // The fields to update for that user.
+    repeated shared.user.v1.UpdateUserField update_fields = 2;
+
+}
+
+// Response updating a user.
+message UpdateUserResponse{
+    // Updated user.
+    shared.user.v1.User User = 1;
+}
+
+
+// Request to delete a user.
+message DeleteUserRequest{
+    // The id of the user to delete.
+    string id = 1;
+}
+
+// Response deleting a user.
+message DeleteUserResponse{}
