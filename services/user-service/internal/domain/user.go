@@ -14,6 +14,7 @@ var (
 	ErrNoUser = errors.New("user does not exist")
 
 	ErrCreateUserEmailUnique = errors.New("email already exists")
+	ErrUserInvalidArgument   = errors.New("invalid request params for modifying/creating user")
 )
 
 type User struct {

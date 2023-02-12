@@ -16,6 +16,7 @@ type Client struct {
 	dBName string
 }
 
+// NewClient creates a new postgres client.
 func NewClient(uri, dbName string) (Client, error) {
 	db, err := sqlx.Connect("postgres", uri)
 	if err != nil {
@@ -24,6 +25,7 @@ func NewClient(uri, dbName string) (Client, error) {
 	return Client{DB: db, dBName: dbName}, nil
 }
 
+// Migrate performs a database migration
 func (c Client) Migrate(migratePath string) error {
 	driver, err := postgres.WithInstance(c.DB.DB, &postgres.Config{
 		MigrationsTable: "schema_migrations",

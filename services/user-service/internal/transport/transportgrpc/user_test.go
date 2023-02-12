@@ -514,43 +514,6 @@ func TestServer_ListUsers_Success(t *testing.T) {
 				},
 			}},
 		},
-		{
-			name: "should use default limit if not specified",
-			args: args{
-				request: &userServiceV1.ListUsersRequest{
-					Filters: nil, Offset: 0, Limit: 0},
-			},
-			setup: func(mockService *mocks.MockService, args args,
-				want *userServiceV1.ListUsersResponse) {
-				mockService.
-					EXPECT().
-					ListUsers(gomock.Any(), nil, gomock.Eq(uint64(0)), gomock.Eq(uint64(100))).
-					Return(want.Users, nil)
-			},
-			want: &userServiceV1.ListUsersResponse{Users: []*v1.User{{
-				Id:        "abc",
-				FirstName: "John",
-				LastName:  "Gopher",
-				Nickname:  "Goopher",
-				Password:  "A-password",
-				Email:     "jon@gopher.com",
-				Country:   "GBR",
-				CreatedAt: timestamppb.Now(),
-				UpdatedAt: nil,
-			},
-				{
-					Id:        "abc",
-					FirstName: "Beth",
-					LastName:  "Gopher",
-					Nickname:  "Goopher",
-					Password:  "A-password",
-					Email:     "beth@gopher.com",
-					Country:   "DEU",
-					CreatedAt: timestamppb.Now(),
-					UpdatedAt: nil,
-				},
-			}},
-		},
 	}
 
 	for _, tt := range tests {
@@ -781,6 +744,27 @@ func TestServer_UpdateUser_Error(t *testing.T) {
 					Return(errors.New("something went wrong"))
 			},
 			wantErr: status.New(codes.Internal, "oops something went wrong!").Err(),
+		},
+		{
+			name: "should return NotFound when service returns NotFound error",
+			args: args{request: &userServiceV1.UpdateUserRequest{User: &v1.User{
+				Id:        "a-user",
+				FirstName: "Max",
+				LastName:  "Some field",
+				Nickname:  "Nickanme",
+				Password:  "a-password",
+				Email:     "anemail@gopher.com",
+				Country:   "DEU",
+				CreatedAt: timestamppb.New(time.Date(2021, 12, 12, 1, 0, 0, 0, time.UTC).UTC()),
+				UpdatedAt: nil,
+			}, UpdateFields: []v1.UpdateUserField{v1.UpdateUserField_UPDATE_USER_FIELD_FIRST_NAME}}},
+			setup: func(mockService *mocks.MockService, args args) {
+				mockService.
+					EXPECT().
+					UpdateUser(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(domain.ErrNoUser)
+			},
+			wantErr: status.New(codes.NotFound, domain.ErrNoUser.Error()).Err(),
 		},
 	}
 

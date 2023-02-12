@@ -12,17 +12,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	defaultLimitSize = 100
-)
-
 func (s *Server) CreateUser(ctx context.Context, request *userServiceV1.CreateUserRequest) (*userServiceV1.CreateUserResponse, error) {
 	u := &domain.User{}
 	u.FromProto(request.GetUser())
 	if err := s.validate.Struct(u); err != nil {
 		return nil, status.New(codes.InvalidArgument, err.Error()).Err()
 	}
-
 	if err := s.service.CreateUser(ctx, request.GetUser()); err != nil {
 		if errors.Is(err, domain.ErrCreateUserEmailUnique) {
 			return nil, status.New(codes.AlreadyExists, "user already exists with this email").Err()
@@ -30,6 +25,11 @@ func (s *Server) CreateUser(ctx context.Context, request *userServiceV1.CreateUs
 		log.WithError(err).Error("unable to create user")
 		return nil, errSomethingWentWrong
 	}
+
+	log.WithContext(ctx).WithFields(log.Fields{
+		"user_id": request.User.Id,
+	}).Info("user is created")
+
 	return &userServiceV1.CreateUserResponse{User: request.User}, nil
 }
 
@@ -48,6 +48,11 @@ func (s *Server) GetUser(ctx context.Context, request *userServiceV1.GetUserRequ
 		return nil, status.New(codes.InvalidArgument, err.Error()).Err()
 	}
 	user, err := s.service.GetUser(ctx, request.GetId())
+
+	logger := log.WithFields(log.Fields{
+		"user_id": request.Id,
+	})
+
 	if err != nil {
 		if errors.Is(err, domain.ErrNoUser) {
 			return nil, status.New(codes.NotFound, "user is not found").Err()
@@ -55,17 +60,12 @@ func (s *Server) GetUser(ctx context.Context, request *userServiceV1.GetUserRequ
 		log.WithError(err).WithFields(log.Fields{"user_id": request.Id}).Error("unable to get user")
 		return nil, errSomethingWentWrong
 	}
+	logger.WithContext(ctx).Info("user is fetched")
 	return &userServiceV1.GetUserResponse{User: user}, nil
 }
 
 func (s *Server) ListUsers(ctx context.Context, request *userServiceV1.ListUsersRequest) (*userServiceV1.ListUsersResponse, error) {
-	// todo: when introduce application layer this should go there
-	// also should set a max limit size
-	limit := request.Limit
-	if request.Limit == 0 {
-		limit = defaultLimitSize
-	}
-	users, err := s.service.ListUsers(ctx, request.GetFilters(), request.Offset, limit)
+	users, err := s.service.ListUsers(ctx, request.GetFilters(), request.Offset, request.Limit)
 	if err != nil {
 		log.WithError(err).WithFields(
 			log.Fields{
@@ -112,16 +112,19 @@ func (s *Server) UpdateUser(ctx context.Context, request *userServiceV1.UpdateUs
 		return nil, status.New(codes.InvalidArgument, err.Error()).Err()
 	}
 
+	logger := log.WithFields(log.Fields{
+		"user_id":       request.User.Id,
+		"update_fields": request.UpdateFields,
+	})
+
 	if err := s.service.UpdateUser(ctx, request.User, request.UpdateFields); err != nil {
-		log.WithError(err).WithFields(
-			log.Fields{
-				"user_id":       request.User.Id,
-				"update_fields": request.UpdateFields,
-			}).Error("unable to update user")
-
+		if errors.Is(err, domain.ErrNoUser) {
+			return nil, status.New(codes.NotFound, err.Error()).Err()
+		}
+		logger.WithError(err).Error("unable to update user")
 		return nil, errSomethingWentWrong
-
 	}
+	logger.WithContext(ctx).Info("user is deleted")
 	return &userServiceV1.UpdateUserResponse{User: request.User}, nil
 }
 
@@ -139,18 +142,21 @@ func (s *Server) DeleteUser(ctx context.Context, request *userServiceV1.DeleteUs
 	if err := validateDeleteUser(request); err != nil {
 		return nil, status.New(codes.InvalidArgument, err.Error()).Err()
 	}
+
+	logger := log.WithFields(log.Fields{
+		"user_id": request.Id,
+	})
 	if err := s.service.DeleteUser(ctx, request.Id); err != nil {
 		if errors.Is(err, domain.ErrNoUser) {
 			return nil, status.New(codes.NotFound, "user is not found").Err()
 		}
 
-		log.WithError(err).WithFields(
-			log.Fields{
-				"user_id": request.Id,
-			}).Error("unable to delete user")
+		log.WithError(err).Error("unable to delete user")
 
 		return nil, errSomethingWentWrong
 
 	}
+	logger.WithContext(ctx).Info("user is deleted")
+
 	return &userServiceV1.DeleteUserResponse{}, nil
 }

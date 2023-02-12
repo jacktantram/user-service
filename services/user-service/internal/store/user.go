@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
 	"strings"
@@ -143,6 +144,9 @@ func (r Store) UpdateUser(ctx context.Context, userToUpdate *v1.User, updateFiel
 		updatedAt time.Time
 	)
 	if err = row.Scan(&updatedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.ErrNoUser
+		}
 		return errors.Wrap(err, "unable to scan row")
 	}
 	userToUpdate.UpdatedAt = timestamppb.New(updatedAt)

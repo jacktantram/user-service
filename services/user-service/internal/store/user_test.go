@@ -223,4 +223,28 @@ func TestStore_UpdateUser(t *testing.T) {
 		assert.Equal(t, newName, u.FirstName)
 		assert.NotNil(t, user.UpdatedAt)
 	})
+	t.Run("should throw an error if user does not exist", func(t *testing.T) {
+		var (
+			user = &v1.User{
+				Id:        uuid.NewV4().String(),
+				FirstName: "Sopme",
+				LastName:  "asdasd",
+				Nickname:  "a-nickname",
+				Password:  "a-password",
+				Email:     fmt.Sprintf("anemail-%s@.com", uuid.NewV4().String()),
+				Country:   "DEU",
+				CreatedAt: timestamppb.Now(),
+				UpdatedAt: nil,
+			}
+			newName = "Gophie"
+		)
+
+		user.FirstName = newName
+
+		err := testStore.UpdateUser(context.Background(), user,
+			[]v1.UpdateUserField{v1.UpdateUserField_UPDATE_USER_FIELD_FIRST_NAME})
+		require.Error(t, err)
+		assert.Equal(t, domain.ErrNoUser, err)
+	})
+
 }

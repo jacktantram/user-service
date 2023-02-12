@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"database/sql"
-
 	"github.com/jacktantram/user-service/pkg/driver/v1/postgres"
 	"github.com/jmoiron/sqlx"
 )

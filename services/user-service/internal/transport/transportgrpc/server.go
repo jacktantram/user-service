@@ -36,11 +36,14 @@ type Server struct {
 }
 
 // NewServer Creates a new server
-func NewServer(server *grpc.Server, service Service) (*Server, error) {
+func NewServer(server *grpc.Server, service Service, opts ...Option) (*Server, error) {
 	if (server == nil) || (service == nil) {
 		return nil, errors.New("server and service must not be nil")
 	}
 	s := &Server{Server: server, service: service, validate: validator.New()}
 	userServiceV1.RegisterUserServiceServer(server, s)
+	for _, opt := range opts {
+		opt(s)
+	}
 	return s, nil
 }

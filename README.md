@@ -1,5 +1,11 @@
 # User Service
 
+To view Kafka messages you can use a tool like Kafkacat/Kcat. Install the [tool](https://github.com/edenhill/kcat)
+ensure the service is running and then execute 
+
+```shell
+kcat -b localhost:29092 -t ${TOPIC_NAME}
+```
 
 ## Repository
 The repository follows a monorepo style approach.
@@ -33,19 +39,26 @@ add in `buf.gen.yaml`
 
 ## Improvements 
 * Depending on scale (CQRS)...
-* Protobuf
-    * CI - Responsible for protobuf generation to ensure no compatibility/versioning issues across machines.
-    * `WIRE_JSON` - In order to share the protobuf schemas and avoid duplication I added the WIRE_JSON check. This was
-      to avoid writing extra mapping functions. However, by doing this it stops the rpc/internal formats to be able to
-      benefit from WIRE changes.
-* Database
-    * If more time would have written table driven tests to tidy up tests.
+* Health Checks
+  * I tried looking into Kafka health checks with Sarama but couldn't find anything exposed to denote things are unhealthy.
+It would look something like:
+```go
+health.Config{
+			Name:      "kafka",
+			Timeout:   time.Second * 2,
+			SkipOnErr: false,
+			Check: func(ctx context.Context) error {
+				return kafkaClient.Ping()
+			},
+		},
+```
+
+* Data Model
+  * For brevity, I made all fields required. Potentially only email, firstname, and last name could be required on creation.
+  * Password based on the requirements is in plaintext. I would generally avoid this, use a tool like Bcrypt and store the hash and salt.
 * Metrics
     * To add metrics I would look at adding [promhttp](https://github.com/prometheus/client_golang/tree/master/prometheus/promhttp) to be able to instrument the HTTP handler. This would enable
       dashboards to be built to track things like latency and number of requests
-* Idempotency
-    * Ideally an idempotency mechanism would be implemented to prevent clients making duplicate requests. It would also
-      cache results of previous calls.
 * Testing
   * Improve service layer tests, ran out of time to cover further edge cases
   * e2e tests
@@ -56,3 +69,27 @@ add in `buf.gen.yaml`
     so that they can be scaled independently and horizontally.
   * Monitors setup to track service health such as `/health`, `/metrics` endpoint as well
     as business metrics where alerts can be triggered.
+
+To provide at least-once message publishing guarantees I would most likely follow a Transactional Outbox pattern.
+The service would have an events table and whenever it performs a modifying operation
+it would write to the table. This would ensure that given every change to an entity, a following event
+is published.
+
+I would have a central running alongside the service which would pickup 
+any unprocessed events.
+
+See below for SQL and design:
+```sql
+select * from events where processed=false;
+```
+![outbox pattern](./docs/img/outbox.png)
+
+Alternatively, to avoid engineering overhead a tool such as Debezium could be used
+which would monitor Database changes and fire Change-Data-Capture (CDC) events.
+
+
+Key: 'User.Email' Error:Field validation for 'Email' failed on the 'email' tag
+
+Filter validation
+
+Delete is a hard delete, could do soft delete instead. 
