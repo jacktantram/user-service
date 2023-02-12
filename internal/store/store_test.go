@@ -4,8 +4,8 @@
 package store_test
 
 import (
+	"github.com/jacktantram/user-service/internal/store"
 	"github.com/jacktantram/user-service/pkg/driver/v1/postgres"
-	"github.com/jacktantram/user-service/services/user-service/internal/store"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"testing"

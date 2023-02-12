@@ -16,7 +16,7 @@ var (
 func LoadConfig(config interface{}) error {
 	path := FilePath
 	if FilePath == "" {
-		path = "services/user-service/config.yaml"
+		path = "config.yaml"
 	}
 
 	file, err := os.Open(path)

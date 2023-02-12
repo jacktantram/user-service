@@ -9,14 +9,20 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-
   kafka:
     image: confluentinc/cp-kafka:latest
+    restart: always
     depends_on:
       - zookeeper
     ports:
@@ -31,7 +37,8 @@ services:
   user_service:
     build:
       context: .
-      dockerfile: services/user-service/Dockerfile
+      dockerfile: Dockerfile
+    restart: always
     env_file:
       - 'dev.env'
     ports:
@@ -40,3 +47,15 @@ services:
     depends_on:
       - postgres
       - kafka
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - ./ops/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+
+volumes:
+  prometheus_data:

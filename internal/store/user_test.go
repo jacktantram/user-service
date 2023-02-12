@@ -8,7 +8,7 @@ import (
 	"fmt"
 	userServiceV1 "github.com/jacktantram/user-service/build/go/rpc/user/v1"
 	v1 "github.com/jacktantram/user-service/build/go/shared/user/v1"
-	"github.com/jacktantram/user-service/services/user-service/internal/domain"
+	"github.com/jacktantram/user-service/internal/domain"
 	uuid "github.com/kevinburke/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -153,6 +153,25 @@ func TestStore_ListUsers(t *testing.T) {
 		assert.Equal(t, user1.Password, users[0].Password)
 		assert.Equal(t, user1.Country, users[0].Country)
 		assert.Equal(t, user1.CreatedAt, users[0].CreatedAt)
+	})
+	t.Run("should return no error given empty filter", func(t *testing.T) {
+		var (
+			user1 = &v1.User{
+				FirstName: "Sopme",
+				LastName:  "asdasd",
+				Nickname:  "a-nickname",
+				Password:  "a-password",
+				Email:     fmt.Sprintf("anemail-%s@.com", uuid.NewV4().String()),
+				Country:   "GBK",
+				CreatedAt: timestamppb.Now(),
+				UpdatedAt: timestamppb.Now(),
+			}
+		)
+		require.NoError(t, testStore.CreateUser(context.Background(), user1))
+
+		users, err := testStore.ListUsers(context.Background(), &userServiceV1.SelectUserFilters{Countries: []string{}}, 0, 100)
+		require.NoError(t, err)
+		assert.NotEqual(t, 0, len(users))
 	})
 
 	t.Run("should return no users if users exist", func(t *testing.T) {

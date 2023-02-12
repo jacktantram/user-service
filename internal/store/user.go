@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/jacktantram/user-service/internal/domain"
 	"github.com/lib/pq"
 	"strings"
 	"time"
 
 	userServiceV1 "github.com/jacktantram/user-service/build/go/rpc/user/v1"
 	v1 "github.com/jacktantram/user-service/build/go/shared/user/v1"
-	"github.com/jacktantram/user-service/services/user-service/internal/domain"
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/kevinburke/go.uuid"
 	"github.com/pkg/errors"
@@ -38,17 +38,21 @@ func (r Store) ListUsers(ctx context.Context, filters *userServiceV1.SelectUserF
 
 	whereBuilder := strings.Builder{}
 	if filters != nil {
-		whereBuilder.WriteString("WHERE ")
 		if len(filters.Countries) != 0 {
 			arg["country"] = filters.Countries
 			whereBuilder.WriteString("country IN (:country)")
 		}
 		arg["where"] = whereBuilder.String()
 	}
+	var whereClause string
+	if whereBuilder.Len() > 0 {
+		whereClause = "WHERE " + whereBuilder.String()
+	}
+
 	arg["limit"] = limit
 	arg["offset"] = offset
 
-	query, args, err := sqlx.Named(fmt.Sprintf("SELECT * FROM users %s LIMIT :limit OFFSET :offset", whereBuilder.String()), arg)
+	query, args, err := sqlx.Named(fmt.Sprintf("SELECT * FROM users %s LIMIT :limit OFFSET :offset", whereClause), arg)
 	if err != nil {
 		return nil, err
 	}

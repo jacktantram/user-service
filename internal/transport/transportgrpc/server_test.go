@@ -2,8 +2,8 @@ package transportgrpc_test
 
 import (
 	"github.com/golang/mock/gomock"
-	"github.com/jacktantram/user-service/services/user-service/internal/transport/transportgrpc"
-	"github.com/jacktantram/user-service/services/user-service/internal/transport/transportgrpc/mocks"
+	"github.com/jacktantram/user-service/internal/transport/transportgrpc"
+	"github.com/jacktantram/user-service/internal/transport/transportgrpc/mocks"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"testing"

@@ -18,6 +18,10 @@ proto-generate: get-buf
 	rm -rf build
 	${BIN}/${BINARY_NAME} generate
 
+# Generates mocks
+generate:
+	go generate ./...
+
 # Runs the go testing stage
 test:
 	go test ./...

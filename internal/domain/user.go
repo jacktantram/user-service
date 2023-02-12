@@ -17,6 +17,7 @@ var (
 	ErrUserInvalidArgument   = errors.New("invalid request params for modifying/creating user")
 )
 
+// User defines a user
 type User struct {
 	ID        uuid.UUID `db:"id"`
 	FirstName string    `db:"first_name" validate:"required"`
@@ -30,6 +31,7 @@ type User struct {
 	UpdatedAt sql.NullTime `db:"updated_at"`
 }
 
+// FromProto converts a proto user into a user.
 func (u *User) FromProto(pbUser *v1.User) {
 	if pbUser == nil {
 		return
@@ -49,6 +51,7 @@ func (u *User) FromProto(pbUser *v1.User) {
 	}
 }
 
+// ToProto converts a user into a proto user.
 func (u *User) ToProto() *v1.User {
 	pbUser := &v1.User{
 		Id:        u.ID.String(),

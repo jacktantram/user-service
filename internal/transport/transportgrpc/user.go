@@ -5,7 +5,7 @@ import (
 	"errors"
 	userServiceV1 "github.com/jacktantram/user-service/build/go/rpc/user/v1"
 	v1 "github.com/jacktantram/user-service/build/go/shared/user/v1"
-	"github.com/jacktantram/user-service/services/user-service/internal/domain"
+	"github.com/jacktantram/user-service/internal/domain"
 	uuid "github.com/kevinburke/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

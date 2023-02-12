@@ -58,20 +58,20 @@ message ListUsersResponse{
 
 // Request to create a user.
 message CreateUserRequest{
-    shared.user.v1.User User = 1;
+    shared.user.v1.User user = 1;
 }
 
 // Response creating a user.
 message CreateUserResponse{
     // Created user.
-    shared.user.v1.User User = 1;
+    shared.user.v1.User user = 1;
 }
 
 
 // Request to updating a user.
 message UpdateUserRequest{
     // The user to update.
-    shared.user.v1.User User = 1;
+    shared.user.v1.User user = 1;
     // The fields to update for that user.
     repeated shared.user.v1.UpdateUserField update_fields = 2;
 
@@ -80,7 +80,7 @@ message UpdateUserRequest{
 // Response updating a user.
 message UpdateUserResponse{
     // Updated user.
-    shared.user.v1.User User = 1;
+    shared.user.v1.User user = 1;
 }
 
 
