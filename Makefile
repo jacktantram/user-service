@@ -32,7 +32,7 @@ test-race:
 
 
 get-linter:
-	command -v golangci-lint || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)bin ${LINTER_VERSION}
+	command -v golangci-lint || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin  ${LINTER_VERSION}
 # Runs the Go linter
 lint: get-linter
 	golangci-lint run
