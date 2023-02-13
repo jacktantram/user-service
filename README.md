@@ -34,6 +34,10 @@ Each event contains the resource that was affected, encouraging consumers to not
 
 Full Schema documentation is available in the `/proto folder`.
 
+## Testing
+In order to test the API directly you can use a tool like [Kreya](https://kreya.app/)
+this allows the ability to import the `/proto` package and execute requests.
+
 ## Kafka Debugging
 To view Kafka messages you can use a tool like Kafkacat/Kcat. Install the [tool](https://github.com/edenhill/kcat).
 Then ensure that everything is running via Docker and execute: 
@@ -90,7 +94,7 @@ It is structured as follows:
 * `make build` - build containers
 * `make run` - to run services
 * `make test` - executes tests
-* `make test-integration` - executes integration tests
+* `make test-integration` - executes integration tests (requires DB & Kafka to be up)
 
 ### Protobuf
 In order to generate definitions run `make proto-generate`. This will
