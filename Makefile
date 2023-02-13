@@ -40,7 +40,7 @@ lint: get-linter
 
 # Builds the projects docker containers
 build:
-	docker-compose build
+	go mod vendor && docker-compose build
 
 # Runs the projects docker containers
 run:

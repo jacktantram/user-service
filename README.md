@@ -34,6 +34,13 @@ Each event contains the resource that was affected, encouraging consumers to not
 
 Full Schema documentation is available in the `/proto folder`.
 
+## Running the Service
+
+To spin-up the service locally run:
+```shell
+make build && make run
+```
+
 ## Testing
 In order to test the API directly you can use a tool like [Kreya](https://kreya.app/)
 this allows the ability to import the `/proto` package and execute requests.
